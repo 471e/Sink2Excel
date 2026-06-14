@@ -1,0 +1,59 @@
+PANDUAN PAKAI EXE
+=================
+
+Isi paket:
+- Sinkronisasi-Excel-Gambar.exe
+- Converter-HEIC-ke-JPG.exe
+- PANDUAN-EXE.txt
+
+1. Sinkronisasi-Excel-Gambar.exe
+   Fungsi:
+   - Sinkronisasi file gambar ke kolom Excel
+   - Mendukung Foto KTP, Foto Rumah, dan Foto Meter Listrik
+
+   Cara pakai:
+   - Jalankan Sinkronisasi-Excel-Gambar.exe
+   - Klik Browse Excel
+   - Pilih sheet jika ingin proses satu sheet
+   - Klik Isi Folder Default atau pilih folder manual
+   - Klik Sinkronisasi Sheet Terpilih atau Sinkronisasi Semua Sheet Valid
+   - Simpan file hasil
+
+   Output:
+   - File Excel hasil sinkronisasi
+   - Sheet Log Sinkronisasi
+   - Sheet Detail Tidak Cocok jika ada mismatch
+
+2. Converter-HEIC-ke-JPG.exe
+   Fungsi:
+   - Convert file HEIC ke JPG
+   - Termasuk file .jpg/.jpeg yang ternyata isi aslinya HEIC
+
+   Cara pakai:
+   - Jalankan Converter-HEIC-ke-JPG.exe
+   - Klik Gunakan Folder Default atau Tambah Folder
+   - Pilih Folder Output
+   - Klik Scan Kandidat HEIC
+   - Klik Convert ke JPG
+
+   Catatan:
+   - File asli tidak diubah
+   - Hasil JPG disimpan ke folder output terpisah
+
+3. Catatan penting
+   - Jika SmartScreen Windows muncul, klik More info lalu Run anyway bila Anda yakin sumber file ini benar
+   - Sebaiknya simpan hasil kerja di folder yang Anda punya hak tulis
+   - Untuk hasil terbaik, pakai folder gambar lokal yang lengkap
+   - Paket rilis ini sudah lolos uji workflow otomatis untuk sinkronisasi Excel dan converter HEIC
+
+4. Sumber data default saat ini
+   - Foto KTP            C:\Users\alfa-raffa\Downloads\(RC) Calon Pelanggan Kegiatan Prioritas Air Minum 2026\Foto KTP (File responses)
+   - Foto Rumah          C:\Users\alfa-raffa\Downloads\(RC) Calon Pelanggan Kegiatan Prioritas Air Minum 2026\Foto Rumah (File responses)
+   - Foto Meter Listrik  C:\Users\alfa-raffa\Downloads\(RC) Calon Pelanggan Kegiatan Prioritas Air Minum 2026\Foto Meter Listrik (File responses)
+
+5. Nama paket rilis
+   - Sinkronisasi-Excel-Tools-v1.0.1
+
+6. Untuk penguji teknis
+   - Tersedia script `smoke_test_release.ps1` di folder project sumber
+   - Script ini dipakai untuk menguji dua `.exe` secara otomatis dan menghasilkan report JSON
