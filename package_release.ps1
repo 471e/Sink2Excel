@@ -3,9 +3,9 @@ $ErrorActionPreference = "Stop"
 $projectRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 Set-Location $projectRoot
 
+. (Join-Path $projectRoot "release_config.ps1")
+
 $distRoot = Join-Path $projectRoot "dist_apps"
-$releaseVersion = "v1.0.1"
-$releaseName = "Sinkronisasi-Excel-Tools-$releaseVersion"
 $releaseRoot = Join-Path $projectRoot $releaseName
 $zipPath = Join-Path $projectRoot "$releaseName.zip"
 $syncAppTargetName = "Sinkronisasi-Excel-Gambar.exe"

@@ -54,7 +54,7 @@ Isi paket:
    - Foto Meter Listrik  C:\Users\alfa-raffa\Downloads\(RC) Calon Pelanggan Kegiatan Prioritas Air Minum 2026\Foto Meter Listrik (File responses)
 
 5. Nama paket rilis
-   - Sinkronisasi-Excel-Tools-v1.0.1
+   - Sinkronisasi-Excel-Tools-v1.0.2
 
 6. Untuk penguji teknis
    - Tersedia script `smoke_test_release.ps1` di folder project sumber

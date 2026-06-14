@@ -252,9 +252,14 @@ Nama file yang dipakai di paket rilis user:
 - `Sinkronisasi-Excel-Gambar.exe`
 - `Converter-HEIC-ke-JPG.exe`
 
-Nama paket rilis saat ini:
+Nama paket yang dipakai oleh script packaging saat ini:
 
-- `Sinkronisasi-Excel-Tools-v1.0.1`
+- `Sinkronisasi-Excel-Tools-v1.0.2`
+
+Catatan:
+
+- Release GitHub publik terakhir tetap `v1.0.1`
+- Branch kerja saat ini menyiapkan kandidat rilis berikutnya
 
 ## Smoke Test Rilis
 

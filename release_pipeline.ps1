@@ -3,6 +3,7 @@ Set-StrictMode -Version Latest
 
 $projectRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 Set-Location $projectRoot
+. (Join-Path $projectRoot "release_config.ps1")
 
 $logPath = Join-Path $projectRoot "release_pipeline.log"
 
@@ -33,7 +34,7 @@ function Assert-PathExists {
 try {
     Start-Transcript -Path $logPath -Force | Out-Null
 
-    Write-Step "Memulai pipeline rilis v1.0.1"
+    Write-Step "Memulai pipeline rilis $ReleaseVersion"
 
     Write-Step "Menjalankan build_apps.ps1"
     & (Join-Path $projectRoot "build_apps.ps1")
@@ -45,8 +46,8 @@ try {
     & (Join-Path $projectRoot "smoke_test_release.ps1")
 
     $distRoot = Join-Path $projectRoot "dist_apps"
-    $releaseRoot = Join-Path $projectRoot "Sinkronisasi-Excel-Tools-v1.0.1"
-    $zipPath = Join-Path $projectRoot "Sinkronisasi-Excel-Tools-v1.0.1.zip"
+    $releaseRoot = Join-Path $projectRoot $ReleaseName
+    $zipPath = Join-Path $projectRoot "$ReleaseName.zip"
     $summaryPath = Join-Path $projectRoot "smoke_test_outputs\smoke_test_summary.json"
 
     Assert-PathExists -PathValue (Join-Path $distRoot "importos.exe") -Label "Executable sinkronisasi"
