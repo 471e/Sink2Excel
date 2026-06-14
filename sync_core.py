@@ -11,7 +11,9 @@ DEFAULT_FOLDER_PATHS = {
     "Foto Rumah": r"C:\Users\alfa-raffa\Downloads\(RC) Calon Pelanggan Kegiatan Prioritas Air Minum 2026\Foto Rumah (File responses)",
     "Foto Meter Listrik": r"C:\Users\alfa-raffa\Downloads\(RC) Calon Pelanggan Kegiatan Prioritas Air Minum 2026\Foto Meter Listrik (File responses)",
 }
-FOTO_COLUMNS = ["Foto KTP", "Foto Rumah", "Foto Meter Listrik"]
+REQUIRED_FOTO_COLUMNS = ["Foto KTP", "Foto Rumah", "Foto Meter Listrik"]
+OPTIONAL_FOTO_COLUMNS = ["Foto Lainnya"]
+FOTO_COLUMNS = REQUIRED_FOTO_COLUMNS + OPTIONAL_FOTO_COLUMNS
 
 
 def extract_filename(path):
@@ -33,6 +35,16 @@ def get_matching_sheets(excel_path, required_columns):
     return matching_sheets
 
 
+def resolve_active_foto_columns(df, folder_paths):
+    active_columns = [col for col in REQUIRED_FOTO_COLUMNS if col in df.columns]
+    active_columns.extend(
+        col
+        for col in OPTIONAL_FOTO_COLUMNS
+        if col in df.columns and folder_paths.get(col)
+    )
+    return active_columns
+
+
 def load_sheet_data(excel_path, sheet_name):
     return pd.read_excel(excel_path, sheet_name=sheet_name)
 
@@ -48,6 +60,12 @@ def load_all_sheet_data(excel_path):
 def build_file_maps(folder_paths):
     file_maps = {}
     for col, folder_path in folder_paths.items():
+        if not folder_path:
+            continue
+
+        if not os.path.isdir(folder_path):
+            raise FileNotFoundError(f"Folder gambar tidak ditemukan untuk {col}: {folder_path}")
+
         file_maps[col] = {
             file_name.lower(): os.path.join(folder_path, file_name)
             for file_name in os.listdir(folder_path)

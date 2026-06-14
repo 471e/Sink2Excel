@@ -4,12 +4,14 @@ import os
 from sync_core import (
     DEFAULT_FOLDER_PATHS,
     FOTO_COLUMNS,
+    REQUIRED_FOTO_COLUMNS,
     build_file_maps,
     build_log_row,
     build_output_filename,
     format_counts_summary,
     get_matching_sheets,
     load_all_sheet_data,
+    resolve_active_foto_columns,
     save_workbook,
     sync_dataframe,
 )
@@ -47,6 +49,10 @@ def parse_args():
         help="Folder lokal untuk kolom Foto Meter Listrik."
     )
     parser.add_argument(
+        "--foto-lainnya",
+        help="Folder lokal untuk kolom Foto Lainnya."
+    )
+    parser.add_argument(
         "--use-default-folders",
         action="store_true",
         help="Gunakan path folder default yang sudah diisi di script."
@@ -62,12 +68,15 @@ def resolve_folder_paths(args):
         "Foto KTP": args.foto_ktp,
         "Foto Rumah": args.foto_rumah,
         "Foto Meter Listrik": args.foto_meter_listrik,
+        "Foto Lainnya": args.foto_lainnya,
     }
 
     if args.use_default_folders:
         folder_paths.update(DEFAULT_FOLDER_PATHS)
 
-    missing_columns = [col for col, path in folder_paths.items() if not path]
+    missing_columns = [
+        col for col in REQUIRED_FOTO_COLUMNS if not folder_paths.get(col)
+    ]
     if missing_columns:
         raise ValueError(
             "Folder gambar wajib diisi untuk kolom: " + ", ".join(missing_columns)
@@ -85,10 +94,11 @@ def resolve_folder_paths(args):
 
 
 def select_target_sheets(excel_path, requested_sheet, process_all):
-    matching_sheets = get_matching_sheets(excel_path, FOTO_COLUMNS)
+    matching_sheets = get_matching_sheets(excel_path, REQUIRED_FOTO_COLUMNS)
     if not matching_sheets:
         raise ValueError(
-            "Tidak ada sheet Excel yang memiliki kolom: " + ", ".join(FOTO_COLUMNS)
+            "Tidak ada sheet Excel yang memiliki kolom: "
+            + ", ".join(REQUIRED_FOTO_COLUMNS)
         )
 
     if requested_sheet:
@@ -123,15 +133,19 @@ def main():
     total_matches = 0
 
     for sheet_name in target_sheets:
+        active_foto_columns = resolve_active_foto_columns(
+            all_sheets[sheet_name],
+            folder_paths
+        )
         synced_df, stats, sheet_mismatches = sync_dataframe(
             all_sheets[sheet_name].copy(),
             files_by_column,
             sheet_name,
-            FOTO_COLUMNS,
+            active_foto_columns,
         )
         all_sheets[sheet_name] = synced_df
         processed_sheets.append((sheet_name, stats))
-        log_rows.append(build_log_row(sheet_name, stats, FOTO_COLUMNS))
+        log_rows.append(build_log_row(sheet_name, stats, active_foto_columns))
         mismatch_details.extend(sheet_mismatches)
         total_matches += sum(item["matched"] for item in stats.values())
 

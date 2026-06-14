@@ -10,12 +10,14 @@ Isi paket:
    Fungsi:
    - Sinkronisasi file gambar ke kolom Excel
    - Mendukung Foto KTP, Foto Rumah, dan Foto Meter Listrik
+   - Mendukung kolom opsional Foto Lainnya jika foldernya dipilih manual
 
    Cara pakai:
    - Jalankan Sinkronisasi-Excel-Gambar.exe
    - Klik Browse Excel
    - Pilih sheet jika ingin proses satu sheet
    - Klik Isi Folder Default atau pilih folder manual
+   - Jika sheet punya kolom Foto Lainnya, pilih foldernya manual
    - Klik Sinkronisasi Sheet Terpilih atau Sinkronisasi Semua Sheet Valid
    - Simpan file hasil
 

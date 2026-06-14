@@ -12,10 +12,13 @@ Keduanya memakai logika inti yang sama dari `sync_core.py`.
 
 ## Fitur
 
-- Mendukung 3 kolom foto:
+- Mendukung 3 kolom foto wajib:
   - `Foto KTP`
   - `Foto Rumah`
   - `Foto Meter Listrik`
+- Mendukung 1 kolom foto opsional:
+  - `Foto Lainnya`
+- Kolom `Foto Lainnya` hanya diproses jika kolom itu ada di sheet dan foldernya diisi manual
 - Bisa memproses `sheet terpilih` atau `semua sheet valid`
 - Pencocokan nama file bersifat `case-insensitive`
 - Menambahkan audit sheet ke output:
@@ -69,6 +72,11 @@ Foto Rumah          C:\Users\alfa-raffa\Downloads\(RC) Calon Pelanggan Kegiatan 
 Foto Meter Listrik  C:\Users\alfa-raffa\Downloads\(RC) Calon Pelanggan Kegiatan Prioritas Air Minum 2026\Foto Meter Listrik (File responses)
 ```
 
+Catatan:
+
+- `Foto Lainnya` tidak memakai folder default
+- Jika ingin memproses `Foto Lainnya`, pilih foldernya manual di GUI atau isi argumen CLI `--foto-lainnya`
+
 ## Cara Pakai GUI
 
 Jalankan:
@@ -82,6 +90,7 @@ Alur pakai:
 1. Klik `Browse Excel`
 2. Pilih sheet jika ingin proses satu sheet
 3. Klik `Isi Folder Default` atau pilih folder manual
+   - untuk `Foto Lainnya`, pilih folder manual jika kolom itu ada di sheet
 4. Pilih salah satu aksi:
    - `Sinkronisasi Sheet Terpilih`
    - `Sinkronisasi Semua Sheet Valid`
@@ -141,6 +150,12 @@ python importpan.py "Form RC Calon Pelanggan AM 2026 Prov. Malut (1).xlsx" --she
 
 ```bash
 python importpan.py "data.xlsx" --all-sheets --foto-ktp "C:\path\ktp" --foto-rumah "C:\path\rumah" --foto-meter-listrik "C:\path\meter"
+```
+
+### Proses dengan kolom opsional `Foto Lainnya`
+
+```bash
+python importpan.py "data.xlsx" --all-sheets --foto-ktp "C:\path\ktp" --foto-rumah "C:\path\rumah" --foto-meter-listrik "C:\path\meter" --foto-lainnya "C:\path\lainnya"
 ```
 
 ### Simpan ke nama file tertentu
@@ -277,6 +292,8 @@ File terkait:
   - folder untuk `Foto Rumah`
 - `--foto-meter-listrik`
   - folder untuk `Foto Meter Listrik`
+- `--foto-lainnya`
+  - folder untuk `Foto Lainnya` jika kolom itu ada di sheet
 - `--use-default-folders`
   - pakai path default yang sudah tertanam di script
 - `--output`
@@ -321,7 +338,8 @@ python fix_mislabeled_heic.py --apply --output hasil_perbaikan_heic.csv
 
 ## Catatan
 
-- Jika workbook tidak punya kolom `Foto KTP`, `Foto Rumah`, dan `Foto Meter Listrik`, sheet tersebut tidak diproses.
+- Jika workbook tidak punya kolom wajib `Foto KTP`, `Foto Rumah`, dan `Foto Meter Listrik`, sheet tersebut tidak diproses.
+- Jika sheet memiliki kolom `Foto Lainnya` dan foldernya tidak diisi, kolom itu dibiarkan apa adanya dan tidak ikut disinkronkan.
 - Jika file gambar tidak ditemukan, nilai kolom akan diisi `None`.
 - Nama file output otomatis dibuat lebih rapi dan memakai timestamp jika nama output tidak ditentukan manual.
 - Formatting workbook hasil bisa berubah sedikit dibanding file Excel asli karena proses simpan ulang dilakukan lewat `pandas` dan `openpyxl`.

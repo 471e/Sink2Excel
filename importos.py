@@ -5,6 +5,7 @@ from tkinter import filedialog, messagebox, ttk
 from sync_core import (
     DEFAULT_FOLDER_PATHS,
     FOTO_COLUMNS,
+    REQUIRED_FOTO_COLUMNS,
     build_file_maps,
     build_log_row,
     build_output_filename,
@@ -12,6 +13,7 @@ from sync_core import (
     get_matching_sheets,
     load_all_sheet_data,
     load_sheet_data,
+    resolve_active_foto_columns,
     save_workbook,
     sync_dataframe,
 )
@@ -30,6 +32,7 @@ class SyncApp:
         self.root.title("Sinkronisasi File Gambar dengan Excel")
         self.root.geometry("720x520")
         self.foto_columns = FOTO_COLUMNS
+        self.required_foto_columns = REQUIRED_FOTO_COLUMNS
         self.sheet_options = []
         self.folder_paths = {col: None for col in self.foto_columns}
         self.folder_labels = {}
@@ -181,13 +184,24 @@ class SyncApp:
             raise ValueError("File Excel belum dipilih.")
 
         missing_folders = [
-            col for col, path in self.folder_paths.items()
-            if not path or not os.path.isdir(path)
+            col
+            for col in self.required_foto_columns
+            if not self.folder_paths.get(col) or not os.path.isdir(self.folder_paths[col])
         ]
         if missing_folders:
             raise ValueError(
                 "Folder gambar belum lengkap atau tidak valid: "
                 + ", ".join(missing_folders)
+            )
+
+        invalid_optional_folders = [
+            col
+            for col, path in self.folder_paths.items()
+            if path and not os.path.isdir(path)
+        ]
+        if invalid_optional_folders:
+            raise ValueError(
+                "Folder gambar tidak valid: " + ", ".join(invalid_optional_folders)
             )
 
         if not self.sheet_options:
@@ -209,7 +223,7 @@ class SyncApp:
             sheet_name
         )
         all_sheets[sheet_name] = synced_df
-        log_rows = [build_log_row(sheet_name, stats, self.foto_columns)]
+        log_rows = [build_log_row(sheet_name, stats, list(stats.keys()))]
         save_path = self.prepare_save_path(save_path)
         save_workbook(
             all_sheets,
@@ -254,7 +268,7 @@ class SyncApp:
             all_sheets[sheet_name] = synced_df
             processed_sheets += 1
             total_matches += sum(item["matched"] for item in stats.values())
-            log_rows.append(build_log_row(sheet_name, stats, self.foto_columns))
+            log_rows.append(build_log_row(sheet_name, stats, list(stats.keys())))
             mismatch_details.extend(sheet_mismatches)
 
         save_path = self.prepare_save_path(save_path)
@@ -363,8 +377,8 @@ class SyncApp:
                     "Folder default tidak ditemukan:\n" + "\n".join(missing_paths)
                 )
 
-            for col in self.foto_columns:
-                self.set_folder_path(col, DEFAULT_FOLDER_PATHS[col])
+            for col, path in DEFAULT_FOLDER_PATHS.items():
+                self.set_folder_path(col, path)
 
             self.status.config(text="Folder default berhasil dimuat.", fg="green")
         except Exception as e:
@@ -382,8 +396,10 @@ class SyncApp:
         self.check_ready()
 
     def check_ready(self):
-        has_all_folders = all(self.folder_paths.values())
-        if self.excel_path and has_all_folders and self.sheet_options:
+        has_required_folders = all(
+            self.folder_paths.get(col) for col in self.required_foto_columns
+        )
+        if self.excel_path and has_required_folders and self.sheet_options:
             self.btn_sync.config(state=tk.NORMAL)
             self.btn_sync_all.config(state=tk.NORMAL)
         else:
@@ -412,7 +428,10 @@ class SyncApp:
         os.startfile(output_dir)
 
     def load_sheet_options(self):
-        self.sheet_options = get_matching_sheets(self.excel_path, self.foto_columns)
+        self.sheet_options = get_matching_sheets(
+            self.excel_path,
+            self.required_foto_columns
+        )
 
         if not self.sheet_options:
             self.sheet_combo["values"] = []
@@ -420,7 +439,7 @@ class SyncApp:
             self.sheet_var.set("Tidak ada sheet yang cocok")
             raise ValueError(
                 "Tidak ada sheet Excel yang memiliki kolom: "
-                + ", ".join(self.foto_columns)
+                + ", ".join(self.required_foto_columns)
             )
 
         self.sheet_combo["values"] = self.sheet_options
@@ -442,7 +461,13 @@ class SyncApp:
         return build_file_maps(self.folder_paths)
 
     def sync_dataframe(self, df, files_by_column, sheet_name):
-        return sync_dataframe(df, files_by_column, sheet_name, self.foto_columns)
+        active_foto_columns = resolve_active_foto_columns(df, self.folder_paths)
+        return sync_dataframe(
+            df,
+            files_by_column,
+            sheet_name,
+            active_foto_columns
+        )
 
     def format_counts_summary(self, stats):
         return format_counts_summary(stats)
@@ -467,7 +492,7 @@ class SyncApp:
                 sheet_name
             )
             all_sheets[sheet_name] = synced_df
-            log_rows = [build_log_row(sheet_name, stats, self.foto_columns)]
+            log_rows = [build_log_row(sheet_name, stats, list(stats.keys()))]
             summary_lines = [
                 f"Sheet: {sheet_name}",
                 f"Total cocok: {sum(item['matched'] for item in stats.values())}",
@@ -529,7 +554,7 @@ class SyncApp:
                 sheet_summaries.append(
                     f"{sheet_name}: {self.format_counts_summary(stats)}"
                 )
-                log_rows.append(build_log_row(sheet_name, stats, self.foto_columns))
+                log_rows.append(build_log_row(sheet_name, stats, list(stats.keys())))
                 mismatch_details.extend(sheet_mismatches)
 
             preview_lines = [
